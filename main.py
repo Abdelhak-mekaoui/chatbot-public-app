@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from langchain_community.llms.huggingface_pipeline import HuggingFacePipeline
-from transformers import  pipeline, AutoTokenizer, AutoModel
+from transformers import  pipeline, AutoTokenizer
 import nest_asyncio
 from langchain_community.document_loaders.mongodb import MongodbLoader
 from langchain_core.prompts import ChatPromptTemplate
@@ -34,8 +34,9 @@ model_id = "TinyLlama-1.1B-Chat-v1.0"
 model_path = f"./data/{model_id}"
 cahce_path = './cache'
 
+from transformers import LlamaForCausalLM  
 
-model = AutoModel.from_pretrained(model_path)
+model = LlamaForCausalLM.from_pretrained(model_path)
 tokenizer = AutoTokenizer.from_pretrained(model_path)
 
 pipe = pipeline("text-generation",
@@ -44,14 +45,16 @@ pipe = pipeline("text-generation",
                 model_kwargs={"cache_dir": cahce_path, 'device_map': 'auto' , "torch_dtype" : torch.bfloat16, "max_length" : 2000},
                 max_new_tokens=256,  do_sample=True, temperature=0.7, top_k=50, top_p=0.95)
 
-hf = HuggingFacePipeline(model_id=model_id, pipeline=pipe)
 
+hf = HuggingFacePipeline(model_id=model_id, pipeline=pipe)
 hf.pipeline.model._validate_model_kwargs = lambda self: None
 
 
 
 
 uri = "mongodb://root:password@localhost:27017"
+
+
 # Setup MongoDB loader
 loader = MongodbLoader(
     connection_string=uri,#os.getenv('MONGO_URI'),
@@ -66,8 +69,12 @@ def format_docs(docs):
 template = """<|system|>Repond selon le contexte : {context} </s> <|user|>{question} Repond en français</s> <|assistant|>"""
 prompt = ChatPromptTemplate.from_template(template)
 
+
+
 class ChatQuestion(BaseModel):
     chatQuestion: str
+
+
 
 @app.post("/v1/")
 async def create_item(item: ChatQuestion):
