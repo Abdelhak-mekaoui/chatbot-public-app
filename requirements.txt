@@ -1,18 +1,15 @@
 fastapi
 uvicorn
 pydantic
-dill
 torch
 transformers
 langchain_community
 langchain
-dill
 accelerate
-dotenv
 motor
 faiss-cpu
-
-
-
+python-dotenv
+sentence-transformers
+nest_asyncio
 
 

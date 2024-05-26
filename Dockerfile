@@ -14,7 +14,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Set the environment variable for MongoDB URI
-ENV MONGO_URI=""
+ENV MONGO_URI="mongodb://root:password@localhost:27017"
+ENV MONGO_DB="chat-docs"
+ENV MONGO_COLLECTION="docs"
+
+# Set the environment variable to disable uvloop
+ENV UVLOOP_DISABLED="1"
+
 
 # Expose the port number the app runs on
 EXPOSE 8000
